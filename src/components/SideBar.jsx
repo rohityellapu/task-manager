@@ -17,10 +17,10 @@ function SideBar({ todos }) {
     return (
         <div className='hidden lg:flex flex-col justify-between h-screen fixed z-5 left-0 top-0 w-72 bg-orange-500 p-4 '>
 
-            <div className="history">
+            <div className="history h-5/6">
                 <h1 className='text-4xl font-bold text-center my-4'>Task Manager</h1>
                 <h2 className='text-2xl font-semibold p-4'>History</h2>
-                <ul className='flex w-full p-8 flex-col gap-2'>
+                <ul className='flex w-full p-8 flex-col gap-2 overflow-y-auto h-5/6'>
                     <li className='flex my-2 gap-2 gap-x-8 justify-between'><span className='font-bold text-lg'>Activity</span><span className='font-bold text-lg'>TimeTook</span></li>
                     { todos.filter(todo => todo.status == 'Completed').map((todo, i) => (
                         <li key={ i } className='flex gap-2 gap-x-8 justify-between'><span>{ todo.activity }</span><span>{ getTimeTaken(todo.timeTaken) }</span></li>
