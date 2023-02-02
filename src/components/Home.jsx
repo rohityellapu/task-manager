@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom';
 import Nav from './Nav';
 import SideBar from './SideBar';
-const apiUrl = 'http://localhost:3005/todos/';
+const apiUrl = 'https://todo-api-d05y.onrender.com/todos/';
 import axios from 'axios';
 import Todo from './Todo';
 function Home() {
@@ -20,7 +20,7 @@ function Home() {
 
     async function getTodos() {
 
-        let res = await axios.get(apiUrl + user.id).then(res => {
+        await axios.get(apiUrl + user.id).then(res => {
             settodos(res.data.todos)
             let ongoing = res.data.todos.filter(todo => todo.status == 'Ongoing')
             setisOngoing(ongoing.length > 0);
@@ -59,9 +59,9 @@ function Home() {
                                     <th className='w-24 lg:w-56 text-2xl p-2 m-2 border-2'>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className=''>
                                 { todos.map((todo, i) => (
-                                    <Todo isOngoing={ isOngoing } setisOngoing={ setisOngoing } key={ i } todo={ todo } setongoingErr={ setongoingErr } />
+                                    <Todo refresh={ getTodos } id={ todo._id } isOngoing={ isOngoing } setisOngoing={ setisOngoing } key={ i } todo={ todo } setongoingErr={ setongoingErr } />
                                 )) }
                             </tbody>
 

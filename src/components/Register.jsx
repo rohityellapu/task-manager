@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from "axios";
 import Loading from './Loading';
 
-const apiUrl = 'http://localhost:3005/register';
+const apiUrl = 'https://todo-api-d05y.onrender.com/register';
 
 function Register() {
 
     let [formData, setForm] = useState({ email: '', password: '', confirmPass: '' });
     let [errMsg, setErr] = useState({ email: '', password: '', confirmPass: '', err: '' });
-    const [onLoad, setonLoad] = useState(false)
+    const [onLoad, setonLoad] = useState(false);
+    let navigate = useNavigate();
     function handleChange(e) {
         let { name, value } = e.target;
         setForm(prev => (
@@ -30,7 +31,11 @@ function Register() {
         console.log(formData);
         setonLoad(true);
         let data = await axios.post(apiUrl, { ...formData }).then(res => {
-            console.log(res);
+            let { data } = res;
+            let store = { token: data.token, userId: data.user._id, username: data.user.username };
+            localStorage.setItem('todoUser', JSON.stringify(store));
+            navigate('/');
+
         }).catch(err => {
             console.log(err);
             if (err.response.status == 409) setErr(prev => ({ ...prev, err: 'User already exists. Sign in' }));
