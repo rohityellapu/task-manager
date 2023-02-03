@@ -5,6 +5,7 @@ function Todo({ todo, isOngoing, setisOngoing, setongoingErr, refresh, id }) {
 
     const [task, settask] = useState({ ...todo, startTime: 0, endTime: 0 })
     const [isPaused, setisPaused] = useState(false)
+    const [isLoading, setisLoading] = useState(false)
     function getTimeTaken(ms) {
         if (ms == 0) return '';
         let str = '';
@@ -17,7 +18,6 @@ function Todo({ todo, isOngoing, setisOngoing, setongoingErr, refresh, id }) {
         return str;
     }
     function handleStart(e) {
-
         if (isOngoing) {
             setongoingErr(true);
             return setTimeout(() => setongoingErr(false), 5000)
@@ -31,19 +31,16 @@ function Todo({ todo, isOngoing, setisOngoing, setongoingErr, refresh, id }) {
 
     }
     async function handlePauseAndResume(e) {
-
-
         if (isOngoing && isPaused) {
-
             let now = (new Date()).getTime();
             let timeTook = now - task.startTime;
+            setisLoading(true);
             await axios.put(apiUrl + task.user, { todo: { ...task, timeTaken: timeTook } }).then(res => {
                 settask(prev => ({ ...prev, timeTaken: res.data.updated.timeTaken, startTime: 0 }))
                 setisOngoing(false);
                 setisPaused(false);
+                setisLoading(false);
             }).catch(console.log);
-
-
         }
         else {
             if (isOngoing) {
@@ -57,19 +54,24 @@ function Todo({ todo, isOngoing, setisOngoing, setongoingErr, refresh, id }) {
             setisOngoing(true);
             setisPaused(true);
         }
-
     }
     async function handleEnd(e) {
         let now = (new Date()).getTime();
         let timeTook = task.startTime > 0 ? now - task.startTime : 0;
+        setisLoading(true);
         await axios.put(apiUrl + task.user, { todo: { ...task, timeTaken: timeTook, status: 'Completed' } }).then(res => {
             settask(prev => ({ ...prev, timeTaken: res.data.updated.timeTaken, startTime: 0, status: 'Completed' }))
             setisOngoing(false);
+            setisLoading(false);
             refresh()
         }).catch(console.log);
     }
-    async function handleDelete(task) {
-        await axios.delete(apiUrl + task.user + '/' + id).then(() => refresh()).catch(console.log)
+    async function handleDelete() {
+        setisLoading(true)
+        await axios.delete(apiUrl + task.user + '/' + id).then(() => {
+            setisLoading(false);
+            refresh();
+        }).catch(console.log)
     }
 
     return (
@@ -78,10 +80,10 @@ function Todo({ todo, isOngoing, setisOngoing, setongoingErr, refresh, id }) {
             <th className='p-2 border-2'>{ task.status }</th>
             <th className='p-2 border-2'>{ getTimeTaken(task.timeTaken) }</th>
             <th className='p-2 border-2'>{ task.status == 'Pending' ? <button className='p-2 rounded-md bg-green-500 hover:saturate-200' onClick={ handleStart }>Start</button> : task.status == 'Ongoing' ?
-                <p className='flex justify-between gap-2'>
-                    <button className='p-2 px-2 rounded-md bg-red-600 hover:saturate-200' onClick={ handleEnd }>End</button>
-                    <button className='p-2 px-2 bg-gray-600 rounded-md hover:saturate-200' onClick={ handlePauseAndResume }>{ isOngoing && isPaused ? "Pause" : "Resume" }</button>
-                </p> : <button onClick={ () => handleDelete(task) } className='p-2 px-2 bg-red-500 rounded-md hover:saturate-200'>Delete</button> }</th>
+                <p className='flex justify-around gap-2'>
+                    <button disabled={ isLoading } className='p-2 px-2 rounded-md bg-red-600 hover:saturate-200 disabled:cursor-wait disabled:opacity-50' onClick={ handleEnd }>End</button>
+                    <button disabled={ isLoading } className='p-2 px-2 bg-gray-600 rounded-md hover:saturate-200 disabled:cursor-wait disabled:opacity-50' onClick={ handlePauseAndResume }>{ isOngoing && isPaused ? "Pause" : "Resume" }</button>
+                </p> : <button disabled={ isLoading } onClick={ () => handleDelete() } className='p-2 px-2 bg-red-500 rounded-md hover:saturate-200 disabled:cursor-wait disabled:opacity-50'>Delete</button> }</th>
         </tr>
     )
 }
