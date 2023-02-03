@@ -6,8 +6,8 @@ function SideBar({ todos }) {
     function getTimeTaken(ms) {
         if (ms == 0) return '';
         let str = '';
-        let seconds = parseInt(ms / 1000);
-        let minutes = parseInt(ms / 60000);
+        let seconds = parseInt(ms / 1000) % 60;
+        let minutes = parseInt(ms / 60000) % 60;
         let hour = parseInt(ms / 3600000);
         str += hour > 9 ? hour : '0' + hour;
         str += minutes > 9 ? `:${minutes}` : `:0${minutes}`;
