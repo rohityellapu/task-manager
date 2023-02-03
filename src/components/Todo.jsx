@@ -62,15 +62,15 @@ function Todo({ todo, isOngoing, setisOngoing, setongoingErr, refresh, id }) {
         await axios.put(apiUrl + task.user, { todo: { ...task, timeTaken: timeTook, status: 'Completed' } }).then(res => {
             settask(prev => ({ ...prev, timeTaken: res.data.updated.timeTaken, startTime: 0, status: 'Completed' }))
             setisOngoing(false);
+            refresh();
             setisLoading(false);
-            refresh()
         }).catch(console.log);
     }
     async function handleDelete() {
         setisLoading(true)
         await axios.delete(apiUrl + task.user + '/' + id).then(() => {
-            setisLoading(false);
             refresh();
+            setisLoading(false);
         }).catch(console.log)
     }
 
