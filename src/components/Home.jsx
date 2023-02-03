@@ -19,6 +19,7 @@ function Home() {
     const [isOngoing, setisOngoing] = useState(false);
     const [ongoingErr, setongoingErr] = useState(false)
     let [addActivity, setActivity] = useState('')
+    const [isLoading, setisLoading] = useState(false)
 
     async function getTodos() {
         await axios.get(apiUrl + user.id).then(res => {
@@ -31,9 +32,11 @@ function Home() {
         getTodos();
     }, [])
     async function handleAdd() {
+        setisLoading(true)
         await axios.post(apiUrl + user.id, { activity: addActivity }).then(() => {
             setActivity('');
             getTodos();
+            setisLoading(false);
         }).catch(console.log);
     }
     return (
@@ -45,7 +48,7 @@ function Home() {
                     { ongoingErr && <p className='text-center text-xl lg:text-3xl font-semibold text-red-600'>Finish or Pause the ongoing task first.</p> }
                     <div className="addtask flex gap-4 justify-center m-4">
                         <input className='p-2 rounded-md bg-green-100 focus:outline-green-500' type="text" value={ addActivity } onChange={ (e) => setActivity(e.target.value) } name="activity" id="" placeholder='Task Name' />
-                        <button disabled={ addActivity.length == 0 } className='p-2 bg-violet-500 hover:bg-violet-800 rounded-md disabled:bg-violet-500 disabled:cursor-not-allowed' onClick={ handleAdd }>Add activity</button>
+                        <button disabled={ addActivity.length == 0 || isLoading } className='p-2 bg-violet-500 hover:bg-violet-800 rounded-md disabled:opacity-50 disabled:cursor-not-allowed' onClick={ handleAdd }>Add activity</button>
                     </div>
                     <div className="tasks flex justify-center">
                         <table className='table-auto'>
